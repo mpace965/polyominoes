@@ -32,15 +32,15 @@ genFixedShapes n
   | n == 1    = Set.singleton $ shapeFromList [(0,0)]
   | otherwise = filterSmall buildFromSmall
     where filterSmall    = Set.filter (\s -> Set.size s == n)
-          buildFromSmall = Set.foldr (\s ss -> Set.union ss (addCells s)) Set.empty (genFixedShapes $ n - 1)
+          buildFromSmall = Set.foldr (\s ss -> Set.union ss $ addCells s) Set.empty (genFixedShapes $ n - 1)
 
 addCells :: Shape -> Set.Set Shape
-addCells p = foldr insertAll Set.empty p
+addCells s = foldr insertAll Set.empty s
   where insertAll c = insertCell addRightCell c .
                       insertCell addLeftCell c  .
                       insertCell addDownCell c  .
                       insertCell addUpCell c
-        insertCell cellFn c = Set.insert (translateOrigin $ cellFn c p)
+        insertCell cellFn c = Set.insert $ translateOrigin $ cellFn c s
 
 addUpCell :: Cell -> Shape -> Shape
 addUpCell (x,y) = Set.insert (x, y + 1)
