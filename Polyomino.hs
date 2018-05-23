@@ -1,32 +1,40 @@
-module Polyomino (Polyomino, genFixed, printP) where
+module Polyomino (Polyomino, genFixed) where
 
 import qualified Data.Set as Set
 
 type Cell = (Int, Int)
-type Polyomino = Set.Set Cell
+type Shape = Set.Set Cell
 
--- Print
+newtype Polyomino = Polyomino
+  { shape       :: Shape
+  } deriving (Eq, Ord)
 
-printP :: Polyomino -> String
-printP p = unlines [line r | r <- [n,n-1..0]]
-  where n        = Set.size p - 1
-        line r   = [star r c | c <- [0..n]]
-        star r c = if Set.member (r,c) p then '*' else ' '
+-- Show
+
+instance Show Polyomino where
+  show (Polyomino s) = "\n" ++ unlines [line r | r <- [n,n-1..0]]
+    where n        = Set.size s - 1
+          line r   = [star r c | c <- [0..n]]
+          star r c = if Set.member (r,c) s then '*' else ' '
 
 -- Constructing Polyominos
 
-fromList :: [Cell] -> Polyomino
-fromList = translateOrigin . Set.fromList
+shapeFromList :: [Cell] -> Shape
+shapeFromList = translateOrigin . Set.fromList
 
 genFixed :: Int -> Set.Set Polyomino
-genFixed n
+genFixed = Set.map wrap . genFixedShapes
+  where wrap s = Polyomino { shape = s }
+
+genFixedShapes :: Int -> Set.Set Shape
+genFixedShapes n
   | n <= 0    = Set.empty
-  | n == 1    = Set.singleton $ fromList [(0,0)]
+  | n == 1    = Set.singleton $ shapeFromList [(0,0)]
   | otherwise = filterSmall buildFromSmall
     where filterSmall    = Set.filter (\s -> Set.size s == n)
-          buildFromSmall = Set.foldr (\p ps -> Set.union ps (addCells p)) Set.empty (genFixed $ n - 1)
+          buildFromSmall = Set.foldr (\s ss -> Set.union ss (addCells s)) Set.empty (genFixedShapes $ n - 1)
 
-addCells :: Polyomino -> Set.Set Polyomino
+addCells :: Shape -> Set.Set Shape
 addCells p = foldr insertAll Set.empty p
   where insertAll c = insertCell addRightCell c .
                       insertCell addLeftCell c  .
@@ -34,23 +42,23 @@ addCells p = foldr insertAll Set.empty p
                       insertCell addUpCell c
         insertCell cellFn c = Set.insert (translateOrigin $ cellFn c p)
 
-addUpCell :: Cell -> Polyomino -> Polyomino
+addUpCell :: Cell -> Shape -> Shape
 addUpCell (x,y) = Set.insert (x, y + 1)
 
-addDownCell :: Cell -> Polyomino -> Polyomino
+addDownCell :: Cell -> Shape -> Shape
 addDownCell (x,y) = Set.insert (x, y - 1)
 
-addLeftCell :: Cell -> Polyomino -> Polyomino
+addLeftCell :: Cell -> Shape -> Shape
 addLeftCell (x,y) = Set.insert (x - 1, y)
 
-addRightCell :: Cell -> Polyomino -> Polyomino
+addRightCell :: Cell -> Shape -> Shape
 addRightCell (x,y) = Set.insert (x + 1, y)
 
 -- Moving Polyominos
 
-translateOrigin :: Polyomino -> Polyomino
+translateOrigin :: Shape -> Shape
 translateOrigin p = translate (-mx, -my) p
   where (mx, my) = foldr1 (\(rx, ry) (sx, sy) -> (min sx rx, min sy ry)) p
 
-translate :: (Int, Int) -> Polyomino -> Polyomino
+translate :: (Int, Int) -> Shape -> Shape
 translate (x,y) = Set.map (\(a,b) -> (a + x, y + b))
