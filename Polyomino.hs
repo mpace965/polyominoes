@@ -12,9 +12,9 @@ data Polyomino = Polyomino Int Shape
 -- Show
 
 instance Show Polyomino where
-  show (Polyomino n s) = unlines [line r | r <- [n,n-1..0]]
-    where line r   = concat [star r c | c <- [0..n]]
-          star r c = if Set.member (r,c) s then "■ " else "□ "
+  show (Polyomino n s) = unlines [line r | r <- [n,n-1..1]]
+    where line r   = concat [star r c | c <- [1..n]]
+          star r c = if Set.member (r - 1, c - 1) s then "■ " else "□ "
 
 -- Constructing Polyominos
 
@@ -33,7 +33,7 @@ genFixedList n
   | n <= 0    = []
   | n == 1    = [Polyomino n $ shapeFromList [(0,0)]]
   | otherwise = filterSmall buildFromSmall
-    where filterSmall    = filter (\(Polyomino i _) -> i == n)
+    where filterSmall    = filter (\(Polyomino _ s) -> length s == n)
           buildFromSmall = concatMap (\(Polyomino i s) -> map (Polyomino $ i + 1) (addCells s)) (genFixedList $ n - 1)
 
 addCells :: Shape -> [Shape]
