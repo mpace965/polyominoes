@@ -1,6 +1,7 @@
-module Polyomino (Polyomino, genFixed) where
+module Polyomino (Polyomino, genFixed, genOneSided) where
 
-import qualified Data.Set as Set
+import           Data.List
+import qualified Data.Set  as Set
 
 type Cell = (Int, Int)
 type Shape = Set.Set Cell
@@ -22,9 +23,18 @@ instance Show Polyomino where
 shapeFromList :: [Cell] -> Shape
 shapeFromList = translateOrigin . Set.fromList
 
+wrap :: Set.Set Shape -> Set.Set Polyomino
+wrap = Set.map (\s -> Polyomino { shape = s})
+
 genFixed :: Int -> Set.Set Polyomino
-genFixed = Set.map wrap . genFixedShapes
-  where wrap s = Polyomino { shape = s }
+genFixed = wrap . genFixedShapes
+
+genOneSided :: Int -> Set.Set Polyomino
+genOneSided = wrap . genOneSidedShapes
+
+genOneSidedShapes :: Int -> Set.Set Shape
+genOneSidedShapes = Set.fromList . nubBy oneSidedEq . Set.toList . genFixedShapes
+  where oneSidedEq a b = a == rotate90 b || a == rotate180 b || a == rotate270 b
 
 genFixedShapes :: Int -> Set.Set Shape
 genFixedShapes n
@@ -36,11 +46,8 @@ genFixedShapes n
 
 addCells :: Shape -> Set.Set Shape
 addCells s = foldr insertAll Set.empty s
-  where insertAll c = insertCell addRightCell c .
-                      insertCell addLeftCell c  .
-                      insertCell addDownCell c  .
-                      insertCell addUpCell c
-        insertCell cellFn c = Set.insert $ translateOrigin $ cellFn c s
+  where insertAll = Set.union . newShapes
+        newShapes c = Set.fromList $ map (\cellFn -> translateOrigin $ cellFn c s) [addRightCell, addLeftCell, addUpCell, addDownCell]
 
 addUpCell :: Cell -> Shape -> Shape
 addUpCell (x,y) = Set.insert (x, y + 1)
@@ -57,8 +64,34 @@ addRightCell (x,y) = Set.insert (x + 1, y)
 -- Moving Polyominos
 
 translateOrigin :: Shape -> Shape
-translateOrigin p = translate (-mx, -my) p
-  where (mx, my) = foldr1 (\(rx, ry) (sx, sy) -> (min sx rx, min sy ry)) p
+translateOrigin s = translate (-mx, -my) s
+  where (mx, my) = foldr1 (\(rx, ry) (sx, sy) -> (min sx rx, min sy ry)) s
 
 translate :: (Int, Int) -> Shape -> Shape
 translate (x,y) = Set.map (\(a,b) -> (a + x, y + b))
+
+rotate :: (Int, Int, Int, Int) -> Shape -> Shape
+rotate r = translateOrigin . Set.map (rotateCell r)
+
+rotate90 :: Shape -> Shape
+rotate90 = translateOrigin . Set.map rotateCell90
+
+rotate180 :: Shape -> Shape
+rotate180 = translateOrigin . Set.map rotateCell180
+
+rotate270 :: Shape -> Shape
+rotate270 = translateOrigin . Set.map rotateCell270
+
+-- Moving Points
+
+rotateCell :: (Int, Int, Int, Int) -> (Int, Int) -> (Int, Int)
+rotateCell (w, x, y, z) (a, b) = (w * a + x * b, y * a + z * b)
+
+rotateCell90 :: (Int, Int) -> (Int, Int)
+rotateCell90 = rotateCell (0, -1, 1, 0)
+
+rotateCell180 :: (Int, Int) -> (Int, Int)
+rotateCell180 = rotateCell (-1, 0, 0, -1)
+
+rotateCell270 :: (Int, Int) -> (Int, Int)
+rotateCell270 = rotateCell (0, 1, -1, 0)
