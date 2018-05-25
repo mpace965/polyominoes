@@ -8,6 +8,8 @@ type Shape = [Cell]
 data Fixed = Fixed Int Shape
   deriving (Eq, Ord)
 
+-- TODO consider making OneSided a typeclass
+
 data OneSided = OneSided Int Shape
   deriving (Ord)
 
