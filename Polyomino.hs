@@ -1,10 +1,9 @@
 module Polyomino (Polyomino, genFixed, genOneSided) where
 
 import           Data.List
-import qualified Data.Set  as Set
 
 type Cell = (Int, Int)
-type Shape = Set.Set Cell
+type Shape = [Cell]
 
 data Polyomino = Polyomino Int Shape
   deriving (Eq, Ord)
@@ -14,64 +13,58 @@ data Polyomino = Polyomino Int Shape
 instance Show Polyomino where
   show (Polyomino n s) = unlines [line r | r <- [n,n-1..1]]
     where line r   = concat [star r c | c <- [1..n]]
-          star r c = if Set.member (r - 1, c - 1) s then "■ " else "□ "
+          star r c = if (r - 1, c - 1) `elem` s then "■ " else "□ "
 
 -- Constructing Polyominos
 
-shapeFromList :: [Cell] -> Shape
-shapeFromList = translateOrigin . Set.fromList
-
-genOneSided :: Int -> Set.Set Polyomino
-genOneSided = Set.fromList . nubBy oneSidedEq . genFixedList
+genOneSided :: Int -> [Polyomino]
+genOneSided = nubBy oneSidedEq . genFixed
   where oneSidedEq (Polyomino _ s) (Polyomino _ s') = s == rotate90 s' || s == rotate180 s' || s == rotate270 s'
 
-genFixed :: Int -> Set.Set Polyomino
-genFixed = Set.fromList . genFixedList
-
-genFixedList :: Int -> [Polyomino]
-genFixedList n
+genFixed :: Int -> [Polyomino]
+genFixed n
   | n <= 0    = []
-  | n == 1    = [Polyomino n $ shapeFromList [(0,0)]]
-  | otherwise = filterSmall buildFromSmall
+  | n == 1    = [Polyomino 1 [(0,0)]]
+  | otherwise = nub $ filterSmall buildFromSmall
     where filterSmall    = filter (\(Polyomino _ s) -> length s == n)
-          buildFromSmall = concatMap (\(Polyomino i s) -> map (Polyomino $ i + 1) (addCells s)) (genFixedList $ n - 1)
+          buildFromSmall = concatMap (\(Polyomino i s) -> map (Polyomino $ i + 1) (addCells s)) (genFixed $ n - 1)
 
 addCells :: Shape -> [Shape]
 addCells s = map translateOrigin $ concatMap newShapes s
-  where newShapes c = map (\cellFn -> cellFn c s) [addRightCell, addLeftCell, addUpCell, addDownCell]
+  where newShapes c = map (\cellFn -> nub $ cellFn c s) [addRightCell, addLeftCell, addUpCell, addDownCell]
 
 addUpCell :: Cell -> Shape -> Shape
-addUpCell (x,y) = Set.insert (x, y + 1)
+addUpCell (x,y) = (:) (x, y + 1)
 
 addDownCell :: Cell -> Shape -> Shape
-addDownCell (x,y) = Set.insert (x, y - 1)
+addDownCell (x,y) = (:) (x, y - 1)
 
 addLeftCell :: Cell -> Shape -> Shape
-addLeftCell (x,y) = Set.insert (x - 1, y)
+addLeftCell (x,y) = (:) (x - 1, y)
 
 addRightCell :: Cell -> Shape -> Shape
-addRightCell (x,y) = Set.insert (x + 1, y)
+addRightCell (x,y) = (:) (x + 1, y)
 
 -- Moving Polyominos
 
 translateOrigin :: Shape -> Shape
-translateOrigin s = translate (-mx, -my) s
+translateOrigin s = sort $ translate (-mx, -my) s
   where (mx, my) = foldr1 (\(rx, ry) (sx, sy) -> (min sx rx, min sy ry)) s
 
 translate :: (Int, Int) -> Shape -> Shape
-translate (x,y) = Set.map (\(a,b) -> (a + x, y + b))
+translate (x,y) = map (\(a,b) -> (a + x, y + b))
 
 rotate :: (Int, Int, Int, Int) -> Shape -> Shape
-rotate r = translateOrigin . Set.map (rotateCell r)
+rotate r = translateOrigin . map (rotateCell r)
 
 rotate90 :: Shape -> Shape
-rotate90 = translateOrigin . Set.map rotateCell90
+rotate90 = translateOrigin . map rotateCell90
 
 rotate180 :: Shape -> Shape
-rotate180 = translateOrigin . Set.map rotateCell180
+rotate180 = translateOrigin . map rotateCell180
 
 rotate270 :: Shape -> Shape
-rotate270 = translateOrigin . Set.map rotateCell270
+rotate270 = translateOrigin . map rotateCell270
 
 -- Moving Points
 
