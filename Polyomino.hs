@@ -6,9 +6,8 @@ import qualified Data.Set  as Set
 type Cell = (Int, Int)
 type Shape = Set.Set Cell
 
-newtype Polyomino = Polyomino
-  { shape       :: Shape
-  } deriving (Eq, Ord)
+newtype Polyomino = Polyomino Shape
+  deriving (Eq, Ord)
 
 -- Show
 
@@ -24,7 +23,7 @@ shapeFromList :: [Cell] -> Shape
 shapeFromList = translateOrigin . Set.fromList
 
 wrap :: Set.Set Shape -> Set.Set Polyomino
-wrap = Set.map (\s -> Polyomino { shape = s})
+wrap = Set.map Polyomino
 
 genFixed :: Int -> Set.Set Polyomino
 genFixed = wrap . genFixedShapes
