@@ -44,9 +44,8 @@ genFixedShapes n
           buildFromSmall = Set.foldr (\s ss -> Set.union ss $ addCells s) Set.empty (genFixedShapes $ n - 1)
 
 addCells :: Shape -> Set.Set Shape
-addCells s = foldr insertAll Set.empty s
-  where insertAll = Set.union . newShapes
-        newShapes c = Set.fromList $ map (\cellFn -> translateOrigin $ cellFn c s) [addRightCell, addLeftCell, addUpCell, addDownCell]
+addCells s = Set.fromList $ map translateOrigin $ concatMap newShapes s
+  where newShapes c = map (\cellFn -> cellFn c s) [addRightCell, addLeftCell, addUpCell, addDownCell]
 
 addUpCell :: Cell -> Shape -> Shape
 addUpCell (x,y) = Set.insert (x, y + 1)
