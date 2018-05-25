@@ -13,10 +13,10 @@ newtype Polyomino = Polyomino
 -- Show
 
 instance Show Polyomino where
-  show (Polyomino s) = "\n" ++ unlines [line r | r <- [n,n-1..0]]
+  show (Polyomino s) = unlines [line r | r <- [n,n-1..0]]
     where n        = Set.size s - 1
-          line r   = [star r c | c <- [0..n]]
-          star r c = if Set.member (r,c) s then '*' else ' '
+          line r   = concat [star r c | c <- [0..n]]
+          star r c = if Set.member (r,c) s then "■ " else "□ "
 
 -- Constructing Polyominos
 
