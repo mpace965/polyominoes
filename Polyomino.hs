@@ -1,33 +1,45 @@
-module Polyomino (Polyomino, genFixed, genOneSided) where
+module Polyomino (Fixed, genFixed, OneSided, genOneSided) where
 
 import           Data.List
 
 type Cell = (Int, Int)
 type Shape = [Cell]
 
-data Polyomino = Polyomino Int Shape
+data Fixed = Fixed Int Shape
   deriving (Eq, Ord)
+
+data OneSided = OneSided Int Shape
+  deriving (Ord)
 
 -- Show
 
-instance Show Polyomino where
-  show (Polyomino n s) = unlines [line r | r <- [n,n-1..1]]
-    where line r   = concat [star r c | c <- [1..n]]
-          star r c = if (r - 1, c - 1) `elem` s then "■ " else "□ "
+showP :: Int -> Shape -> String
+showP n s = unlines [line r | r <- [n,n-1..1]]
+  where line r   = concat [star r c | c <- [1..n]]
+        star r c = if (r - 1, c - 1) `elem` s then "■ " else "□ "
+
+instance Show Fixed where
+  show (Fixed n s) = showP n s
+
+instance Show OneSided where
+  show (OneSided n s) = showP n s
+
+instance Eq OneSided where
+  (==) (OneSided n s) (OneSided n' s') =
+    n == n' && (s == s' || s == rotate90 s' || s == rotate180 s' || s == rotate270 s')
 
 -- Constructing Polyominos
 
-genOneSided :: Int -> [Polyomino]
-genOneSided = nubBy oneSidedEq . genFixed
-  where oneSidedEq (Polyomino _ s) (Polyomino _ s') = s == rotate90 s' || s == rotate180 s' || s == rotate270 s'
+genOneSided :: Int -> [OneSided]
+genOneSided = nub . map (\(Fixed n s) -> OneSided n s) . genFixed
 
-genFixed :: Int -> [Polyomino]
+genFixed :: Int -> [Fixed]
 genFixed n
   | n <= 0    = []
-  | n == 1    = [Polyomino 1 [(0,0)]]
+  | n == 1    = [Fixed 1 [(0,0)]]
   | otherwise = nub $ filterSmall buildFromSmall
-    where filterSmall    = filter (\(Polyomino _ s) -> length s == n)
-          buildFromSmall = concatMap (\(Polyomino i s) -> map (Polyomino $ i + 1) (addCells s)) (genFixed $ n - 1)
+    where filterSmall    = filter (\(Fixed _ s) -> length s == n)
+          buildFromSmall = concatMap (\(Fixed i s) -> map (Fixed $ i + 1) (addCells s)) (genFixed $ n - 1)
 
 addCells :: Shape -> [Shape]
 addCells s = map translateOrigin $ concatMap newShapes s
@@ -45,7 +57,7 @@ addLeftCell (x,y) = (:) (x - 1, y)
 addRightCell :: Cell -> Shape -> Shape
 addRightCell (x,y) = (:) (x + 1, y)
 
--- Moving Polyominos
+-- Moving Shapes
 
 translateOrigin :: Shape -> Shape
 translateOrigin s = sort $ translate (-mx, -my) s
