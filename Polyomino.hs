@@ -6,15 +6,14 @@ import qualified Data.Set  as Set
 type Cell = (Int, Int)
 type Shape = Set.Set Cell
 
-newtype Polyomino = Polyomino Shape
+data Polyomino = Polyomino Int Shape
   deriving (Eq, Ord)
 
 -- Show
 
 instance Show Polyomino where
-  show (Polyomino s) = unlines [line r | r <- [n,n-1..0]]
-    where n        = Set.size s - 1
-          line r   = concat [star r c | c <- [0..n]]
+  show (Polyomino n s) = unlines [line r | r <- [n,n-1..0]]
+    where line r   = concat [star r c | c <- [0..n]]
           star r c = if Set.member (r,c) s then "■ " else "□ "
 
 -- Constructing Polyominos
@@ -22,29 +21,23 @@ instance Show Polyomino where
 shapeFromList :: [Cell] -> Shape
 shapeFromList = translateOrigin . Set.fromList
 
-wrap :: Set.Set Shape -> Set.Set Polyomino
-wrap = Set.map Polyomino
+genOneSided :: Int -> Set.Set Polyomino
+genOneSided = Set.fromList . nubBy oneSidedEq . genFixedList
+  where oneSidedEq (Polyomino _ s) (Polyomino _ s') = s == rotate90 s' || s == rotate180 s' || s == rotate270 s'
 
 genFixed :: Int -> Set.Set Polyomino
-genFixed = wrap . genFixedShapes
+genFixed = Set.fromList . genFixedList
 
-genOneSided :: Int -> Set.Set Polyomino
-genOneSided = wrap . genOneSidedShapes
-
-genOneSidedShapes :: Int -> Set.Set Shape
-genOneSidedShapes = Set.fromList . nubBy oneSidedEq . Set.toList . genFixedShapes
-  where oneSidedEq a b = a == rotate90 b || a == rotate180 b || a == rotate270 b
-
-genFixedShapes :: Int -> Set.Set Shape
-genFixedShapes n
-  | n <= 0    = Set.empty
-  | n == 1    = Set.singleton $ shapeFromList [(0,0)]
+genFixedList :: Int -> [Polyomino]
+genFixedList n
+  | n <= 0    = []
+  | n == 1    = [Polyomino n $ shapeFromList [(0,0)]]
   | otherwise = filterSmall buildFromSmall
-    where filterSmall    = Set.filter (\s -> Set.size s == n)
-          buildFromSmall = Set.foldr (\s ss -> Set.union ss $ addCells s) Set.empty (genFixedShapes $ n - 1)
+    where filterSmall    = filter (\(Polyomino i _) -> i == n)
+          buildFromSmall = concatMap (\(Polyomino i s) -> map (Polyomino $ i + 1) (addCells s)) (genFixedList $ n - 1)
 
-addCells :: Shape -> Set.Set Shape
-addCells s = Set.fromList $ map translateOrigin $ concatMap newShapes s
+addCells :: Shape -> [Shape]
+addCells s = map translateOrigin $ concatMap newShapes s
   where newShapes c = map (\cellFn -> cellFn c s) [addRightCell, addLeftCell, addUpCell, addDownCell]
 
 addUpCell :: Cell -> Shape -> Shape
