@@ -2,11 +2,16 @@ module App where
 
 import           Polyomino
 
--- TODO Once Polyomino typeclasses are implemented, allow for selection of
---      polynominos to generate
+genFn :: String -> (Int -> [Polyomino])
+genFn s = case s of
+            "fixed"     -> genFixed
+            "one-sided" -> genOneSided
+            _           -> const []
 
 main :: IO ()
 main = do
-  putStr "Generate polynominos of length: "
+  putStr "Generate polyominos of length: "
   n <- getLine
-  putStr $ unlines $ map show $ genOneSided (read n :: Int)
+  putStr "Polyominos of type {fixed, one-sided}: "
+  freedom <- getLine
+  putStr $ unlines $ map show $ genFn freedom (read n :: Int)
