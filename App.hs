@@ -11,8 +11,8 @@ genFn s = case s of
 
 main :: IO ()
 main = do
-  putStr "Generate polyominos of length: "
+  putStr "Generate polyominoes of length: "
   n <- getLine
-  putStr "Polyominos of type {free, one-sided, fixed}: "
+  putStr "Polyominoes of type {free, one-sided, fixed}: "
   freedom <- getLine
   putStr $ unlines $ map show $ genFn freedom (read n :: Int)

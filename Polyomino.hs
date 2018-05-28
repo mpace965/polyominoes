@@ -25,7 +25,7 @@ instance Eq Polyomino where
   (==) (Polyomino Fixed n s) (Polyomino Fixed n' s') = n == n' && s == s'
   (==) _ _ = False
 
--- Constructing Polyominos
+-- Constructing Polyominoes
 
 genFree :: Int -> [Polyomino]
 genFree = nub . map (\(Polyomino Fixed n s) -> Polyomino Free n s) . genFixed
@@ -57,7 +57,7 @@ addLeftCell (x,y) = (:) (x - 1, y)
 addRightCell :: Cell -> Shape -> Shape
 addRightCell (x,y) = (:) (x + 1, y)
 
--- Moving Polyominos
+-- Moving Polyominoes
 
 translateOrigin :: Shape -> Shape
 translateOrigin s = sort $ translate (-mx, -my) s
