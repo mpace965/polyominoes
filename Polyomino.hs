@@ -10,8 +10,8 @@ data Polyomino = Polyomino Freedom Int Shape
 
 instance Show Polyomino where
   show (Polyomino _ n s) = unlines [line r | r <- [n,n-1..1]]
-    where line r   = concat [star r c | c <- [1..n]]
-          star r c = if (r - 1, c - 1) `elem` s then "■ " else "□ "
+    where line r    = concat [block r c | c <- [1..n]]
+          block r c = if (r - 1, c - 1) `elem` s then "■ " else "□ "
 
 isAnyShape :: Polyomino -> [Polyomino] -> Bool
 isAnyShape (Polyomino _ _ s) = any (\(Polyomino _ _ s') -> s == s')
