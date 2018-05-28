@@ -12,7 +12,7 @@ $ stack build
 $ stack exec Polyomino
 ```
 
-the executable file is built to: `.stack-work/dist/x86_64-osx/Cabal-2.0.1.0/build/Polyomino/Polyomino`
+the executable file is built to: `.stack-work/dist/x86_64-osx/Cabal-2.0.1.0/build/Polyomino/Polyomino` or a similar directory depending on your system and cabal version
 
 ## Documenting
 
@@ -28,7 +28,7 @@ the documentation is then available at: `dist/doc/html/Polyomino/Polyomino/index
 ## Sample Output
 
 ```
-$ runhaskell App.hs
+$ stack exec Polyomino
 Generate polyominoes of length: 4
 Polyominoes of type {free, one-sided, fixed}: one-sided
 ██░░░░░░
