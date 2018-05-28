@@ -37,12 +37,10 @@ genFixed :: Int -> [Polyomino]
 genFixed n
   | n <= 0    = []
   | n == 1    = [Polyomino Fixed 1 [(0,0)]]
-  | otherwise = nub $ filterSmall buildFromSmall
-    where filterSmall    = filter (\(Polyomino Fixed _ s) -> length s == n)
-          buildFromSmall = concatMap (\(Polyomino Fixed i s) -> map (Polyomino Fixed $ i + 1) (addCells s)) (genFixed $ n - 1)
+  | otherwise = nub $ concatMap (\(Polyomino Fixed i s) -> map (Polyomino Fixed $ i + 1) (addCells s n)) (genFixed $ n - 1)
 
-addCells :: Shape -> [Shape]
-addCells s = map translateOrigin $ concatMap newShapes s
+addCells :: Shape -> Int -> [Shape]
+addCells s n = map translateOrigin $ filter (\s' -> length s' == n) $ concatMap newShapes s
   where newShapes c = map (\cellFn -> nub $ cellFn c s) [addRightCell, addLeftCell, addUpCell, addDownCell]
 
 addUpCell :: Cell -> Shape -> Shape
