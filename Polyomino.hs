@@ -20,7 +20,7 @@ instance Eq Polyomino where
   (==) p@(Polyomino Free n _) other@(Polyomino Free n' _) =
     n == n' && (isAnyShape p (rotationSet other) ||
                 isAnyShape p (reflectionSet other) ||
-                isAnyShape p (concatMap rotationSet (reflectionSet other))) -- TODO debug wrong numbers at n >= 7
+                isAnyShape p (concatMap rotationSet (reflectionSet other)))
   (==) p@(Polyomino OneSided n _) other@(Polyomino OneSided n' _) = n == n' && isAnyShape p (rotationSet other)
   (==) (Polyomino Fixed n s) (Polyomino Fixed n' s') = n == n' && s == s'
   (==) _ _ = False
