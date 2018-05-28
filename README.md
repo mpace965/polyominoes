@@ -53,3 +53,9 @@ Polyominoes of type {free, one-sided, fixed}: one-sided
 ■ ■ □ □
 □ ■ ■ □
 ```
+
+## Caveats
+
+*   The number of distinct free polyominoes is wrong for `n >= 7`
+*   The number of distinct one-sided and fixed polyominoes have only been tested
+    in the range `1 <= n <= 12`.
