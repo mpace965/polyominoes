@@ -11,3 +11,45 @@ Built with GHC 7.10.3. To run, clone the repository and run
 ```
 $ runhaskell App.hs
 ```
+
+## Sample Output
+
+```
+$ runhaskell App.hs
+Generate polyominos of length: 4
+Polyominos of type {free, one-sided, fixed}: one-sided
+■ □ □ □
+■ □ □ □
+■ □ □ □
+■ □ □ □
+
+□ □ □ □
+■ □ □ □
+■ □ □ □
+■ ■ □ □
+
+□ □ □ □
+□ ■ □ □
+□ ■ □ □
+■ ■ □ □
+
+□ □ □ □
+■ □ □ □
+■ ■ □ □
+■ □ □ □
+
+□ □ □ □
+□ □ □ □
+■ ■ □ □
+■ ■ □ □
+
+□ □ □ □
+■ □ □ □
+■ ■ □ □
+□ ■ □ □
+
+□ □ □ □
+□ □ □ □
+■ ■ □ □
+□ ■ ■ □
+```
