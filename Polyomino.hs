@@ -37,7 +37,9 @@ genFixed :: Int -> [Polyomino]
 genFixed n
   | n <= 0    = []
   | n == 1    = [Polyomino Fixed 1 [(0,0)]]
-  | otherwise = nub $ concatMap (\(Polyomino Fixed i s) -> map (Polyomino Fixed $ i + 1) (addCells s n)) (genFixed $ n - 1)
+  | otherwise = nub $ concatMap addAndWrap (genFixed $ n - 1)
+    where addAndWrap (Polyomino Fixed i s) = map (Polyomino Fixed $ i + 1) (addCells s n)
+          addAndWrap _ = []
 
 addCells :: Shape -> Int -> [Shape]
 addCells s n = map translateOrigin $ filter (\s' -> length s' == n) $ concatMap newShapes s
