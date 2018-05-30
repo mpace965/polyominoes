@@ -2,9 +2,10 @@
 Module: Polyomino
 Description: Functionality for generating polyominos.
 -}
+
 module Polyomino (Polyomino, genFree, genOneSided, genFixed) where
 
-import Data.List
+import           Data.List
 
 --------------------------------------------------------------------------------
 
@@ -25,8 +26,8 @@ data Polyomino = Polyomino Freedom Int Shape
 instance Show Polyomino where
     show (Polyomino _ n s) = unlines [line r | r <- [n,n-1..1]]
       where
-        line r = concat [star r c | c <- [1..n]]
-        star r c = if (r - 1, c - 1) `elem` s then "██" else "░░" -- "■ " else "□ "
+        line r = concat [block r c | c <- [1..n]]
+        block r c = if (r - 1, c - 1) `elem` s then "██" else "░░"
 
 instance Eq Polyomino where
     (==) p1@(Polyomino Free n1 _) p2@(Polyomino Free n2 _) = -- Free Polynomios
@@ -34,7 +35,6 @@ instance Eq Polyomino where
         isAnyShape p1 (rotationSet p2) || -- if p2 is a rotation of p1
         isAnyShape p1 (reflectionSet p2) || -- if p2 is a reflection of p1
         isAnyShape p1 (concatMap rotationSet (reflectionSet p2))) -- if p2 is a combination of reflections or rotations
-        -- TODO debug wrong numbers at n >= 7
     (==) p1@(Polyomino OneSided n1 _) p2@(Polyomino OneSided n2 _) = -- One-Sided Polyominos
         n1 == n2 && -- when number of cells are the same
         isAnyShape p1 (rotationSet p2) -- if p2 is a rotation of p1
@@ -45,7 +45,7 @@ instance Eq Polyomino where
 
 --------------------------------------------------------------------------------
 
--- | Tests if the shapes of the polynomials in the list are the same shape as the primary polyomino
+-- | Tests if the shapes of the polyominoes in the list are the same shape as the primary polyomino
 isAnyShape :: Polyomino -> [Polyomino] -> Bool
 isAnyShape (Polyomino _ _ s) = any (\(Polyomino _ _ s') -> s == s')
 
@@ -94,7 +94,7 @@ addRightCell (x,y) = (:) (x + 1, y)
 
 -- TRANSLATING
 
--- | Translates the origin of a shape
+-- | Translates the cells so that all cells in the shape are >= to (0, 0)
 translateOrigin :: Shape -> Shape
 translateOrigin s = sort $ translate (-mx, -my) s
   where
