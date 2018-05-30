@@ -27,7 +27,7 @@ instance Show Polyomino where
     show (Polyomino _ n s) = unlines [line r | r <- [n,n-1..1]]
       where
         line r = concat [block r c | c <- [1..n]]
-        block r c = if (r - 1, c - 1) `elem` s then "██" else "░░"
+        block r c = if (r - 1, c - 1) `elem` s then "■ " else "□ "
 
 instance Eq Polyomino where
     (==) p1@(Polyomino Free n1 _) p2@(Polyomino Free n2 _) = -- Free Polynomios
