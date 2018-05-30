@@ -64,5 +64,5 @@ Polyominoes of type {free, one-sided, fixed}: one-sided
 □ □ □ □
 □ □ □ □
 ■ ■ □ □
-□ ■ ■ □ 
+□ ■ ■ □
 ```

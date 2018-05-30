@@ -30,15 +30,15 @@ instance Show Polyomino where
         block r c = if (r - 1, c - 1) `elem` s then "■ " else "□ "
 
 instance Eq Polyomino where
-    (==) p1@(Polyomino Free n1 _) p2@(Polyomino Free n2 _) = -- Free Polynomios
+    (==) p1@(Polyomino Free n1 _) p2@(Polyomino Free n2 _) = -- Free Polynominoes
         n1 == n2 && ( -- when number of cells are the same
         isAnyShape p1 (rotationSet p2) || -- if p2 is a rotation of p1
         isAnyShape p1 (reflectionSet p2) || -- if p2 is a reflection of p1
         isAnyShape p1 (concatMap rotationSet (reflectionSet p2))) -- if p2 is a combination of reflections or rotations
-    (==) p1@(Polyomino OneSided n1 _) p2@(Polyomino OneSided n2 _) = -- One-Sided Polyominos
+    (==) p1@(Polyomino OneSided n1 _) p2@(Polyomino OneSided n2 _) = -- One-Sided Polyominoes
         n1 == n2 && -- when number of cells are the same
         isAnyShape p1 (rotationSet p2) -- if p2 is a rotation of p1
-    (==) (Polyomino Fixed n1 s1) (Polyomino Fixed n2 s2) = -- Fixed Polyominos
+    (==) (Polyomino Fixed n1 s1) (Polyomino Fixed n2 s2) = -- Fixed Polyominoes
         n1 == n2 && -- when number of cells are the same
         s1 == s2 -- when shape is exactly the same
     (==) _ _ = False -- otherwise, they're not equal
@@ -53,18 +53,18 @@ isAnyShape (Polyomino _ _ s) = any (\(Polyomino _ _ s') -> s == s')
 -- GENERATION
 --------------------------------------------------------------------------------
 
--- | Generate all the free polyominos of a given size
+-- | Generate all the free polyominoes of a given size
 genFree :: Int -> [Polyomino]
 genFree = nub . map (\(Polyomino Fixed n s) -> Polyomino Free n s) . genFixed
 
--- | Generate all the one-sided polyominos of a given size
+-- | Generate all the one-sided polyominoes of a given size
 genOneSided :: Int -> [Polyomino]
 genOneSided = nub . map (\(Polyomino Fixed n s) -> Polyomino OneSided n s) . genFixed
 
--- | Generate all the fixed polyominos of a given size
+-- | Generate all the fixed polyominoes of a given size
 genFixed :: Int -> [Polyomino]
 genFixed n
-    | n <= 0    = [] -- if size is 0, there are no polyominos
+    | n <= 0    = [] -- if size is 0, there are no polyominoes
     | n == 1    = [Polyomino Fixed 1 [(0,0)]] -- if size is 1, there is only one polyomino
     | otherwise = nub $ concatMap addAndWrap (genFixed (n - 1))
       where
