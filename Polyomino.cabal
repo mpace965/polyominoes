@@ -1,0 +1,21 @@
+name:                       Polyomino
+version:                    0.1.0.0
+synopsis:                   Polyomino Generator
+description:                Generates the free, one-sided, and fixed polyominoes in Haskell.
+homepage:                   https://github.com/mpace965/polyominoes
+license:                    MIT
+license-file:               LICENSE
+author:                     Matthew Pace
+maintainer:                 matthew.dp.96@gmail.com
+copyright:                  2018 Matthew Pace
+category:                   Math
+build-type:                 Simple
+cabal-version:              >= 1.10
+extra-source-files:         README.md
+
+executable Polyomino
+    hs-source-dirs:         src
+    main-is:                Main.hs
+    default-language:       Haskell2010
+    build-depends:          base >= 4.7 && < 5
+    other-modules:          Polyomino
